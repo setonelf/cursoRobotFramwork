@@ -9,10 +9,17 @@ ${CATEGORIA_COMPUTADORES_INFORMATICA}    (//span[contains(.,"Computadores e Info
 ${CAMPO_DE_BUSCA}    //*[@id="twotabsearchtextbox"]
 ${BOTAO_PESQUISAR}    //*[@id="nav-search-submit-button"]
 ${RESULTADO_PESQUISA}    (//div/h2/span[contains(.,"Xbox Series S")])
+${PRODUTO_XBOX}    //h2/span[contains(.,"Console Xbox Series S")]
+${BOTAO_ADICIONAR_AO_CARRINHO}    //*[@id="add-to-cart-button"]
+${BOTAO_CARRINHO}    //*[@id="nav-cart"]
+${CARRINHO_XBOX}    (//span/span[contains(.,"Console Xbox Series S")])[2]
+${EXCLUIR}                 //input[contains(@value,'Excluir')]
+${REMOVIDO_DO_CARRINHO}    //h1[@class='a-spacing-mini a-spacing-top-base'][contains(.,'Seu carrinho de compras da Amazon está vazio.')]
+
 
 *** Keywords ***
 Abrir o navegador
-    Open Browser    browser=chrome
+    Open Browser    browser=chrome    options=add_experimental_option("detach", True)
     Maximize Browser Window
 Fechar o navegador
     Capture Page Screenshot
@@ -36,6 +43,22 @@ Clicar no botão de pesquisa
     Click Element    locator=${BOTAO_PESQUISAR}
 Verificar o resultado da pesquisa se está listando o produto especificado
     Wait Until Element Is Visible    locator=${RESULTADO_PESQUISA}
+Verificar o resultado da pesquisa se está listando o produto "${PRODUTO}"
+    Wait Until Page Contains    text=${PRODUTO}
+    Wait Until Element Is Visible    locator=${PRODUTO_XBOX}
+Adicionar o produto "Console Xbox Series S" no carrinho
+    Click Element    locator=${PRODUTO_XBOX}
+    Click Element    locator=${BOTAO_ADICIONAR_AO_CARRINHO}
+Verificar se o produto "${PRODUTO}" foi adicionado com sucesso
+    Wait Until Element Is Visible    locator=${BOTAO_CARRINHO}
+    Click Element    locator=${BOTAO_CARRINHO}
+    Wait Until Page Contains    text=${PRODUTO}
+    Wait Until Element Is Visible    locator=//span[@class='a-truncate-cut'][contains(.,'${PRODUTO}')]
+Remover o produto "Console Xbox Series S" do carrinho
+    Click Element   locator=${EXCLUIR}
+
+Verificar se o carrinho fica vazio
+    Wait Until Element Is Visible    locator=${REMOVIDO_DO_CARRINHO}
     
 #BDD STEPS
 Dado que estou na home page da Amazon.com.br
@@ -53,3 +76,21 @@ Quando pesquisar pelo produto "${BUSCA}"
     Clicar no botão de pesquisa
 E um produto da linha "Xbox Series S" deve ser mostrado na página
     Verificar o resultado da pesquisa se está listando o produto especificado
+Quando adicionar o produto "Console Xbox Series S" no carrinho
+    Digitar o nome de produto "Xbox Series S" no campo de pesquisa
+    Clicar no botão de pesquisa
+    Verificar o resultado da pesquisa se está listando o produto "Console Xbox Series S"
+    Adicionar o produto "Console Xbox Series S" no carrinho
+
+Então o produto "Console Xbox Series S" deve ser mostrado no carrinho
+    Verificar se o produto "Console Xbox Series S" foi adicionado com sucesso
+
+E existe o produto "Console Xbox Series S" no carrinho
+    Quando adicionar o produto "Console Xbox Series S" no carrinho
+    Então o produto "Console Xbox Series S" deve ser mostrado no carrinho
+
+Quando remover o produto "Console Xbox Series S" do carrinho
+    Remover o produto "Console Xbox Series S" do carrinho
+
+Então o carrinho deve ficar vazio
+    Verificar se o carrinho fica vazio
